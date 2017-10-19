@@ -18,7 +18,7 @@ class BundleBuilder {
 
     fun build() = bundle
 
-    internal infix fun String.to(arg: Any?) {
+    infix fun String.to(arg: Any?) {
         when (arg) {
             is String? -> bundle.putString(this, arg)
             is Int -> bundle.putInt(this, arg)
@@ -42,7 +42,7 @@ class BundleBuilder {
         }
     }
 
-    internal infix fun KProperty<*>.to(arg: Any?) {
+    infix fun KProperty<*>.to(arg: Any?) {
         name to arg
     }
 
