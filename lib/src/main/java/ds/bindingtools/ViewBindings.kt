@@ -105,7 +105,7 @@ interface Bindable : LifecycleObserver {
     /**
      * Binds any property to any property
      */
-    fun <T> Bindable.bind(prop: KProperty0<T>, mutableProp: KMutableProperty0<T>) =
+    fun <T> bind(prop: KProperty0<T>, mutableProp: KMutableProperty0<T>) =
             bind(prop, { mutableProp.set(it) }, { mutableProp.get() })
 
     fun <T : Any?> unbind(prop: KProperty<T>) {
