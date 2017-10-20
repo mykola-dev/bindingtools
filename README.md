@@ -125,7 +125,7 @@ println("the name is ${prefs.userName}")
 ```
 
 ### Bundle arguments tricks
-The args bundle have never been such simple before. Let's declare another one activity:
+Dealing with args bundle has never been such simple before. Let's declare another one activity:
 ```kotlin
 class SecondActivity : AppCompatActivity() {
 
@@ -136,10 +136,25 @@ class SecondActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_second)
-        println("$userName $age $country")
+        println("$userName $age $country")  // that's it. just read the properties
     }
 }
 
+```
+Start activity with convenient bundle builder:
+```kotlin
+startActivity<SecondActivity> {
+    SecondActivity::userName to "Ivo Bobul"
+    SecondActivity::age to 99
+    SecondActivity::code to 65536
+}
+```
+or build the bundle separately:
+```kotlin
+val args = bundle {
+    SecondActivity::userName to "Slavko Vakarchuk"
+    SecondActivity::code to 100500
+}
 ```
 
 ### Resources

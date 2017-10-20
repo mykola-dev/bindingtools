@@ -5,7 +5,9 @@ import android.support.v7.app.AppCompatActivity
 import android.widget.Button
 import android.widget.TextView
 import ds.bindingtools.bind
+import ds.bindingtools.bundle
 import ds.bindingtools.startActivity
+import ds.bindingtools.unbindAll
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,6 +31,12 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        // need in case your viewmodel life duration is greater than activity (e.g. Arch Components ViewModel)
+        viewModel.unbindAll()
+    }
+
     private fun bindViews() = with(viewModel) {
         bind(::text, textLabel::setText, textLabel::getText)
     }
@@ -46,6 +54,10 @@ class MainActivity : AppCompatActivity() {
             SecondActivity::userName to "Ivo Bobul"
             SecondActivity::age to 99
             SecondActivity::code to 65536
+        }
+        val args = bundle {
+            SecondActivity::userName to "Slavko Vakarchuk"
+            SecondActivity::code to 100500
         }
     }
 }
