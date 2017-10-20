@@ -3,7 +3,6 @@
  */
 package ds.bindingtools
 
-import android.arch.lifecycle.LifecycleObserver
 import android.widget.CompoundButton
 import android.widget.TextView
 import java.util.*
@@ -69,6 +68,38 @@ inline fun <reified T : String> Bindable.bind(prop: KProperty0<T>, view: TextVie
 inline fun <reified T : Boolean> Bindable.bind(prop: KProperty0<T>, view: CompoundButton) =
         bind(prop, view::setChecked, view::isChecked)
 
+/**
+ * Binds [setter]/[getter] pair to the [prop]
+ */
+fun <T : Any?> Bindable.bind(prop: KProperty0<T>, setter: (T) -> Unit, getter: (() -> T)? = null) {
+    val owner: Bindable = prop.parent as Bindable
+    println("bind ${prop.name}")
+    val binding = getBinding<T>(owner, prop) ?: BindingData(prop.name)
+    binding.setters += setter
+    if (getter != null)
+        if (binding.getter == null)
+            binding.getter = getter
+        else
+            error("Only one getter per property allowed")
+
+    setter(prop.get())  // initialize view
+    bindings[owner]!!.put(prop.name, binding)
+}
+
+/**
+ * Binds any property to any property
+ */
+fun <T> Bindable.bind(prop: KProperty0<T>, mutableProp: KMutableProperty0<T>) =
+        bind(prop, { mutableProp.set(it) }, { mutableProp.get() })
+
+fun <T : Any?> Bindable.unbind(prop: KProperty<T>) {
+    bindings[this]?.remove(prop.name)
+}
+
+fun Bindable.unbindAll() {
+    bindings.remove(this)
+}
+
 fun Bindable.debugBindings() {
     bindings[this]?.forEach { e ->
         println("for ${e.value.field}: id=${e.key} getter=${e.value.getter} setters=${e.value.setters.size}")
@@ -82,37 +113,4 @@ private class BindingData<T : Any?, R : Any?>(val field: String) {
     val setters = mutableListOf<(T) -> Unit>()
 }
 
-interface Bindable : LifecycleObserver {
-
-    /**
-     * Binds [setter]/[getter] pair to the [prop]
-     */
-    fun <T : Any?> bind(prop: KProperty0<T>, setter: (T) -> Unit, getter: (() -> T)? = null) {
-        val owner: Bindable = prop.parent as Bindable
-        println("bind ${prop.name}")
-        val binding = getBinding<T>(owner, prop) ?: BindingData(prop.name)
-        binding.setters += setter
-        if (getter != null)
-            if (binding.getter == null)
-                binding.getter = getter
-            else
-                error("Only one getter per property allowed")
-
-        setter(prop.get())  // initialize view
-        bindings[owner]!!.put(prop.name, binding)
-    }
-
-    /**
-     * Binds any property to any property
-     */
-    fun <T> bind(prop: KProperty0<T>, mutableProp: KMutableProperty0<T>) =
-            bind(prop, { mutableProp.set(it) }, { mutableProp.get() })
-
-    fun <T : Any?> unbind(prop: KProperty<T>) {
-        bindings[this]?.remove(prop.name)
-    }
-
-    fun unbindAll() {
-        bindings.remove(this)
-    }
-}
+interface Bindable
