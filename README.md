@@ -1,4 +1,6 @@
 # bindingtools
+[![GitHub release](https://img.shields.io/github/release/deviant-studio/bindingtools.svg?style=flat-square)]()
+
 Lightweight helper library for Android Kotlin development
 - Shared Preferences delegates
 - Bundle args delegates
