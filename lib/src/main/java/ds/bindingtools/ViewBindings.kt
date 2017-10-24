@@ -132,9 +132,10 @@ private class Binding(
 fun <T : Bindable> Any.withBindable(bindable: T, block: T.() -> Unit) {
     val binding = Binder[bindable]
     if (binding != null && binding.view.get() == this) {
-        log("Already binded to this view. rebinding...")
+        log("Already binded to this view.")
+    } else {
+        Binder[bindable] = Binding(WeakReference(this))
     }
-    Binder[bindable] = Binding(WeakReference(this))
     block(bindable)
 }
 
