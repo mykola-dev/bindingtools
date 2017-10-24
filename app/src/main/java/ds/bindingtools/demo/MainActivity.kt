@@ -2,23 +2,25 @@ package ds.bindingtools.demo
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.widget.Button
-import android.widget.TextView
 import ds.bindingtools.bind
 import ds.bindingtools.bundle
 import ds.bindingtools.startActivity
-import ds.bindingtools.unbindAll
+import ds.bindingtools.withBindable
+import kotlinx.android.synthetic.main.activity_main.*
+
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var textLabel: TextView
+    private val leaksDetector = ByteArray(50_000_000) { 127 }
+
     private lateinit var prefs: Prefs
-    private val viewModel = MainViewModel()
+
+    private var viewModel = MainViewModel
+    private val extraViewModel = ExtraViewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        textLabel = findViewById(R.id.text)
         prefs = Prefs(this)
 
         bindViews()
@@ -27,18 +29,24 @@ class MainActivity : AppCompatActivity() {
 
         fillPrefs()
 
-        findViewById<Button>(R.id.button).setOnClickListener { navigateNext() }
+        navigateButton.setOnClickListener { navigateNext() }
+        bindButton.setOnClickListener {
+            viewModel.onBindClick()
+        }
+
 
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        // need in case your viewmodel life duration is greater than activity (e.g. Arch Components ViewModel)
-        viewModel.unbindAll()
+    override fun onResume() {
+        super.onResume()
+        withBindable(extraViewModel) {
+
+        }
     }
 
-    private fun bindViews() = with(viewModel) {
-        bind(::text, textLabel::setText, textLabel::getText)
+    private fun bindViews() = withBindable(viewModel) {
+        bind(this::text, helloLabel::setText, helloLabel::getText)
+        bind(::buttonText, { it: String -> navigateButton.text = it }, { navigateButton.text.toString() })
     }
 
     private fun fillPrefs() {
