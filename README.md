@@ -68,7 +68,7 @@ class MainViewModel : Bindable {
 ```
 and Activity:
 ```kotlin
-private fun bindViews() = with(viewModel) {
+private fun bindViews() = withBindable(viewModel) {
     bind(::text, textLabel::setText, textLabel::getText)
 }
 ```
@@ -76,13 +76,9 @@ Thats it! Now we can set TextView's text like:
 ```kotlin
 viewModel.sayHello()
 ```
-Don't forget to unbind viewModel to avoid leaks:
-```kotlin
-viewModel.unbindAll()
-```
 Also library allows you to simplify `TextView`/`EditText` bindings to this:
 ```kotlin
-with(viewModel) {
+withBindable(viewModel) {
     bind(::text, textLabel)
 }
 ```
