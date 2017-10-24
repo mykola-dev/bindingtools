@@ -83,7 +83,7 @@ withBindable(viewModel) {
 }
 ```
 
-### Shared Preferences
+### Shared Preferences binding
 It's so annoying to deal with SharedPreferences directly:
 ```java
 final String ageKey = "age";
@@ -120,7 +120,7 @@ prefs.isAdmin = true
 println("the name is ${prefs.userName}")
 ```
 
-### Bundle arguments tricks
+### Bundle arguments binding
 Dealing with args bundle has never been such simple before. Let's declare another one activity:
 ```kotlin
 class SecondActivity : AppCompatActivity() {
@@ -153,10 +153,13 @@ val args = bundle {
 }
 ```
 
-### Resources
+### Resources binding
 Same rules can be used when using resources:
  ```kotlin
 private val appName: String by res(R.string.app_name)
 ...
 println(appName)
  ```
+
+### Projects using this lib
+- https://github.com/deviant-studio/energy-meter-scanner
