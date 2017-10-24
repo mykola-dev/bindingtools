@@ -2,6 +2,7 @@ package ds.bindingtools.demo
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import ds.bindingtools.bind
 import ds.bindingtools.bundle
 import ds.bindingtools.startActivity
@@ -12,6 +13,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     private val leaksDetector = ByteArray(50_000_000) { 127 }
+    private val TAG = javaClass.simpleName
 
     private lateinit var prefs: Prefs
 
@@ -21,6 +23,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        Log.v(TAG, "onCreate")
         prefs = Prefs(this)
 
         bindViews()

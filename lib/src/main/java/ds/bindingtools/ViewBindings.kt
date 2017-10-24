@@ -25,10 +25,11 @@ class BindingProperty<T : Any?>(private var value: T?, private val type: Class<T
         ensureUiThread()
         val getter = Binder.getAccessors<T>(thisRef, property)?.getter
         if (getter != null) {
+            log("${property.name}.get: filling from getter")
             value = getter.invoke()
         }
         val value = value ?: default(type)
-        log("get value [$value]")
+        log("get: value [$value]")
         return value
     }
 
@@ -36,10 +37,10 @@ class BindingProperty<T : Any?>(private var value: T?, private val type: Class<T
         ensureUiThread()
         val oldValue = this.value
         if (oldValue != value) {
-            log("internal value has been set")
+            log("${property.name}.set: internal value [$value] has been set")
             this.value = value
             Binder.getAccessors<T>(thisRef, property)?.setters?.forEach {
-                log("set value [$value]")
+                log("set: value [$value]")
                 it(value)
             }
         }
@@ -85,6 +86,9 @@ inline fun <reified T : Boolean> Bindable.bind(prop: KProperty0<T>, view: Compou
 fun <T : Any?> Bindable.bind(prop: KProperty0<T>, setter: (T) -> Unit, getter: (() -> T)? = null) {
     Binder.getOrPutAccessors<T>(this, prop).let {
         log("bind ${prop.name}")
+        log("set default for ${prop.name}: ${prop.get()}")
+        setter(prop.get())  // initialize view
+
         it.setters += setter
         if (getter != null)
             if (it.getter == null)
@@ -92,7 +96,6 @@ fun <T : Any?> Bindable.bind(prop: KProperty0<T>, setter: (T) -> Unit, getter: (
             else
                 error("Only one getter per property allowed")
 
-        setter(prop.get())  // initialize view
     }
 }
 
@@ -173,7 +176,7 @@ private object Binder {
 }
 
 private fun log(message: String) {
-    if (BuildConfig.DEBUG) Log.v("DATABINDING", message)
+    /*if (BuildConfig.DEBUG) */Log.v("DATABINDING", message)
 }
 
 interface Bindable
