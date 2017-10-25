@@ -1,5 +1,5 @@
 # bindingtools
-[![GitHub release](https://img.shields.io/github/release/deviant-studio/bindingtools.svg?style=flat-square)]()
+[![JitPack](https://img.shields.io/jitpack/v/deviant-studio/bindingtools.svg?style=flat-square)]()
 
 Lightweight helper library for Android Kotlin development
 - Shared Preferences delegates
