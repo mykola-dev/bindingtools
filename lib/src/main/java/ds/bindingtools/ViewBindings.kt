@@ -60,52 +60,6 @@ class BindingProperty<T : Any?>(private var value: T?, private val type: Class<T
     }
 }
 
-/**
- * Binds [TextView] to the  [CharSequence] field
- */
-inline fun <reified T : CharSequence> Bindable.bindCharSequence(prop: KProperty0<T>, view: TextView) =
-        bind(prop, view::setText, view::getText)
-
-/**
- * Binds [TextView] to the  [String] field
- */
-@Suppress("FINAL_UPPER_BOUND")
-inline fun <reified T : String> Bindable.bind(prop: KProperty0<T>, view: TextView) =
-        bind(prop, view::setText, { view.text.toString() as T })
-
-/**
- * Binds [CompoundButton] to the  [Boolean] field
- */
-@Suppress("FINAL_UPPER_BOUND")
-inline fun <reified T : Boolean> Bindable.bind(prop: KProperty0<T>, view: CompoundButton) =
-        bind(prop, view::setChecked, view::isChecked)
-
-/**
- * Binds [setter]/[getter] pair to the [prop]
- */
-fun <T : Any?> Bindable.bind(prop: KProperty0<T>, setter: (T) -> Unit, getter: (() -> T)? = null) {
-    Binder.getOrPutAccessors<T>(this, prop).let {
-        log("bind ${prop.name}")
-        log("set default for ${prop.name}: ${prop.get()}")
-        setter(prop.get())  // initialize view
-
-        it.setters += setter
-        if (getter != null)
-            if (it.getter == null)
-                it.getter = getter
-            else
-                error("Only one getter per property allowed")
-
-    }
-}
-
-
-/**
- * Binds any property to any property
- */
-fun <T> Bindable.bind(prop: KProperty0<T>, mutableProp: KMutableProperty0<T>) =
-        bind(prop, { mutableProp.set(it) }, { mutableProp.get() })
-
 fun Bindable.unbind() {
     Binder.remove(this)
 }
@@ -129,14 +83,16 @@ private class Binding(
         val properties: MutableMap<String, Accessors<*, *>> = mutableMapOf()
 )
 
-fun <T : Bindable> Any.withBindable(bindable: T, block: T.() -> Unit) {
+fun <T : Bindable> LifecycleOwner.withBindable(bindable: T, block: (T.() -> Unit)? = null) = withBindable(this, bindable, block)
+
+private fun <T : Bindable> withBindable(view: Any, bindable: T, block: (T.() -> Unit)? = null) {
     val binding = Binder[bindable]
-    if (binding != null && binding.view.get() == this) {
+    if (binding != null && binding.view.get() == view) {
         log("Already binded to this view.")
     } else {
-        Binder[bindable] = Binding(WeakReference(this))
+        Binder[bindable] = Binding(WeakReference(view))
     }
-    block(bindable)
+    block?.invoke(bindable)
 }
 
 private object Binder {
@@ -177,7 +133,53 @@ private object Binder {
 }
 
 private fun log(message: String) {
-    /*if (BuildConfig.DEBUG) */Log.v("DATABINDING", message)
+    if (BuildConfig.DEBUG) Log.v("DATABINDING", message)
 }
 
-interface Bindable
+interface Bindable {
+
+    /**
+     * Binds [TextView] to the  [CharSequence] field
+     */
+    fun <T : CharSequence> Bindable.bindCharSequence(prop: KProperty0<T>, view: TextView) =
+            bind(prop, view::setText, view::getText)
+
+    /**
+     * Binds [TextView] to the  [String] field
+     */
+    @Suppress("FINAL_UPPER_BOUND")
+    fun <T : String> Bindable.bind(prop: KProperty0<T>, view: TextView) =
+            bind(prop, view::setText, { view.text.toString() })
+
+    /**
+     * Binds [CompoundButton] to the  [Boolean] field
+     */
+    @Suppress("FINAL_UPPER_BOUND")
+    fun <T : Boolean> Bindable.bind(prop: KProperty0<T>, view: CompoundButton) =
+            bind(prop, view::setChecked, view::isChecked)
+
+    /**
+     * Binds any property to any property
+     */
+    fun <T> Bindable.bind(prop: KProperty0<T>, mutableProp: KMutableProperty0<T>) =
+            bind(prop, { mutableProp.set(it) }, { mutableProp.get() })
+
+    /**
+     * Binds [setter]/[getter] pair to the [prop]
+     */
+    fun <T : Any?> Bindable.bind(prop: KProperty0<T>, setter: (T) -> Unit, getter: (() -> T)? = null) {
+        Binder.getOrPutAccessors<T>(this, prop).let {
+            log("bind ${prop.name}")
+            log("set default for ${prop.name}: ${prop.get()}")
+            setter(prop.get())  // initialize view
+
+            it.setters += setter
+            if (getter != null)
+                if (it.getter == null)
+                    it.getter = getter
+                else
+                    error("Only one getter per property allowed")
+
+        }
+    }
+}

@@ -2,8 +2,7 @@ package ds.bindingtools.demo
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
-import ds.bindingtools.bind
+import android.widget.Toast
 import ds.bindingtools.bundle
 import ds.bindingtools.startActivity
 import ds.bindingtools.withBindable
@@ -13,17 +12,15 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     private val leaksDetector = ByteArray(50_000_000) { 127 }
-    private val TAG = javaClass.simpleName
 
     private lateinit var prefs: Prefs
 
     private var viewModel = MainViewModel
-    private val extraViewModel = ExtraViewModel()
+    private val extraViewModel = ExtraViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        Log.v(TAG, "onCreate")
         prefs = Prefs(this)
 
         bindViews()
@@ -35,15 +32,19 @@ class MainActivity : AppCompatActivity() {
         navigateButton.setOnClickListener { navigateNext() }
         bindButton.setOnClickListener {
             viewModel.onBindClick()
+            extraViewModel.message = "toast!"
         }
-
 
     }
 
     override fun onResume() {
         super.onResume()
         withBindable(extraViewModel) {
-
+            bind(::message, {
+                it.isNotEmpty() || return@bind
+                Toast.makeText(this@MainActivity, it, Toast.LENGTH_SHORT).show()
+                message = ""
+            })
         }
     }
 
