@@ -1,5 +1,5 @@
 # bindingtools
-[![GitHub release](https://img.shields.io/github/release/deviant-studio/bindingtools.svg?style=flat-square)]()
+[![JitPack](https://img.shields.io/jitpack/v/deviant-studio/bindingtools.svg?style=flat-square)]()
 
 Lightweight helper library for Android Kotlin development
 - Shared Preferences delegates
@@ -84,6 +84,19 @@ withBindable(viewModel) {
     bind(::text, textLabel)
 }
 ```
+#### Comparison with Google Databinding library
+\+ don't have to write BindingAdapters<br/> 
+\+ no code generation (no more missed `BR.id`, don't have to force `clean` in any unclear situation)<br/> 
+\+ great code completion (compared to XML)<br/> 
+\+ clean XML files<br/> 
+\+ can bind anything to anything, not only the View<br/> 
+\+ can be used with Anko (and any programmatically created views)<br/> 
+\+ much cleaner way to implement 2-way bindings<br/> 
+
+\- some reflection<br/> 
+\- not from Google<br/> 
+\- only for Kotlin apps<br/> 
+\- no observables (yet?)<br/> 
 
 ### Shared Preferences binding
 It's so annoying to deal with SharedPreferences directly:
