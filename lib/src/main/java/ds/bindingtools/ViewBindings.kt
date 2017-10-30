@@ -5,7 +5,6 @@ package ds.bindingtools
 
 import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.LifecycleOwner
-import android.os.Looper
 import android.util.Log
 import android.widget.CompoundButton
 import android.widget.TextView
@@ -22,7 +21,6 @@ inline fun <reified T : Any?> binding(): ReadWriteProperty<Bindable, T> = Bindin
 class BindingProperty<T : Any?>(private var value: T?, private val type: Class<T>) : ReadWriteProperty<Bindable, T> {
 
     override fun getValue(thisRef: Bindable, property: KProperty<*>): T {
-        ensureUiThread()
         val getter = Binder.getAccessors<T>(thisRef, property)?.getter
         if (getter != null) {
             log("${property.name}.get: filling from getter")
@@ -34,7 +32,6 @@ class BindingProperty<T : Any?>(private var value: T?, private val type: Class<T
     }
 
     override fun setValue(thisRef: Bindable, property: KProperty<*>, value: T) {
-        ensureUiThread()
         val oldValue = this.value
         if (oldValue != value) {
             log("${property.name}.set: internal value [$value] has been set")
@@ -69,9 +66,6 @@ fun Bindable.debugBindings() {
         log("bindings for ${e.value.name}: id=${e.key} getter=${e.value.getter} setters=${e.value.setters}")
     }
 }
-
-private val isUiThread: Boolean get() = Thread.currentThread() === Looper.getMainLooper().thread
-private fun ensureUiThread() = isUiThread || error("UI thread expected")
 
 private class Accessors<T : Any?, R : Any?>(val name: String) {
     var getter: (() -> R)? = null
