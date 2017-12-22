@@ -30,9 +30,14 @@ class MainActivity : AppCompatActivity() {
         fillPrefs()
 
         navigateButton.setOnClickListener { navigateNext() }
+
         bindButton.setOnClickListener {
             viewModel.onBindClick()
             extraViewModel.message = "toast!"
+        }
+
+        nestedButton.setOnClickListener {
+            viewModel.assignNested()
         }
 
     }
@@ -49,8 +54,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun bindViews() = withBindable(viewModel) {
-        bind(this::text, helloLabel::setText, helloLabel::getText)
+        bind(::text, helloLabel::setText, helloLabel::getText)
         bind(::buttonText, { it: String -> navigateButton.text = it }, { navigateButton.text.toString() })
+
+        withBindable(nestedViewModel) {
+            bind(::secondaryText, { Toast.makeText(this@MainActivity, it, Toast.LENGTH_SHORT).show() })
+        }
     }
 
     private fun fillPrefs() {
