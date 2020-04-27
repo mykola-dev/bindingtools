@@ -3,11 +3,11 @@
  */
 package ds.bindingtools
 
-import android.arch.lifecycle.Lifecycle
-import android.arch.lifecycle.LifecycleOwner
 import android.util.Log
 import android.widget.CompoundButton
 import android.widget.TextView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import java.lang.ref.WeakReference
 import java.util.*
 import kotlin.properties.ReadWriteProperty

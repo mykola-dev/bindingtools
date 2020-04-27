@@ -1,7 +1,7 @@
 package ds.bindingtools.demo
 
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import ds.bindingtools.arg
 import ds.bindingtools.res
 

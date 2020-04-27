@@ -5,9 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
-import android.support.annotation.IdRes
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentActivity
+import androidx.annotation.IdRes
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import java.io.Serializable
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KClass
@@ -52,7 +52,9 @@ inline fun <reified T : Activity> Activity.startActivityForResult(requestCode: I
 }
 
 inline fun <reified T : Fragment> FragmentActivity.replaceFragment(@IdRes layoutId: Int, args: Bundle? = null) {
-    val fragment = Fragment.instantiate(this, T::class.java.name, args)
+    val fragment = supportFragmentManager.fragmentFactory.instantiate(classLoader, T::class.java.name)
+    fragment.arguments = args
+    //val fragment = Fragment.instantiate(this, T::class.java.name, args)
     supportFragmentManager
             .beginTransaction()
             .replace(layoutId, fragment)
@@ -60,7 +62,8 @@ inline fun <reified T : Fragment> FragmentActivity.replaceFragment(@IdRes layout
 }
 
 inline fun <reified T : Fragment> FragmentActivity.replaceFragment(@IdRes layoutId: Int, f: BundleBuilder.(T) -> Unit) {
-    val fragment = Fragment.instantiate(this, T::class.java.name) as T
+    val fragment = supportFragmentManager.fragmentFactory.instantiate(classLoader, T::class.java.name) as T
+    //val fragment = Fragment.instantiate(this, T::class.java.name) as T
     val builder = BundleBuilder()
     f(builder, fragment)
     fragment.arguments = builder.build()
@@ -74,22 +77,21 @@ inline fun <reified T : Fragment> FragmentActivity.replaceFragment(@IdRes layout
 @Suppress("unchecked_cast")
 class ActivityArgsDelegate<out T : Any?>(private val default: T, private val cls: KClass<*>) : ReadOnlyProperty<Activity, T> {
 
-    override fun getValue(thisRef: Activity, property: KProperty<*>): T {
-        if (thisRef.intent?.extras == null)
-            return default
+    override fun getValue(thisRef: Activity, property: KProperty<*>): T = thisRef
+            .intent
+            ?.extras
+            ?.let { extras -> parseExtras(property.name, extras, cls, default) }
+            ?: default
 
-        return parseExtras(property.name, thisRef.intent.extras, cls, default)
-    }
 }
 
 class FragmentArgsDelegate<out T : Any?>(private val default: T, private val cls: KClass<*>) : ReadOnlyProperty<Fragment, T> {
 
-    override fun getValue(thisRef: Fragment, property: KProperty<*>): T {
-        if (thisRef.arguments == null)
-            return default
+    override fun getValue(thisRef: Fragment, property: KProperty<*>): T = thisRef
+            .arguments
+            ?.let { args -> parseExtras(property.name, args, cls, default) }
+            ?: default
 
-        return parseExtras(property.name, thisRef.arguments, cls, default)
-    }
 }
 
 @Suppress("unchecked_cast")

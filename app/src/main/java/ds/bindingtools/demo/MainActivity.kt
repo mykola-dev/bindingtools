@@ -1,8 +1,9 @@
 package ds.bindingtools.demo
 
+import android.content.Context
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import ds.bindingtools.bundle
 import ds.bindingtools.startActivity
 import ds.bindingtools.withBindable
@@ -55,10 +56,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun bindViews() = withBindable(viewModel) {
         bind(::text, helloLabel::setText, helloLabel::getText)
-        bind(::buttonText, { it: String -> navigateButton.text = it }, { navigateButton.text.toString() })
+        bind(::buttonText, { navigateButton.text = it }, { navigateButton.text.toString() })
 
         withBindable(nestedViewModel) {
-            bind(::secondaryText, { Toast.makeText(this@MainActivity, it, Toast.LENGTH_SHORT).show() })
+            bind(::secondaryText, { text -> Toast.makeText(this@MainActivity, text, Toast.LENGTH_SHORT).show() })
         }
     }
 
