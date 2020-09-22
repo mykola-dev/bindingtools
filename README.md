@@ -28,7 +28,7 @@ dependencies {
 ## Documentation
 
 ### Data Binding
-Let's say you have the Activity:
+Let's say you have an Activity:
 ```kotlin
 class MainActivity : AppCompatActivity() {
 
@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
     }
 }
 ```
-and the ViewModel:
+and a ViewModel:
 ```kotlin
 class MainViewModel {
     var text: String = ""
